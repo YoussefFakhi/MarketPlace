@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\ServiceController;
+use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
@@ -26,6 +28,21 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])
         ->middleware('can:delete,category');
 });
+
+
+Route::middleware('auth:sanctum')->group(function(){
+    Route::post('/services',[ServiceController::class,'store'])
+    ->middleware('can:create,App\Models\Service');
+    Route::put('services/{service}',[ServiceController::class,'update'])
+    ->middleware('can:update,service');
+    Route::delete('services/{service}',[ServiceController::class,'destroy'])
+    ->middleware('can:delete,service');
+    Route::get('/services/my',[ServiceController::class,'myServices']);
+});
+
+// Public route for browsing services
+Route::get('/services', [ServiceController::class, 'index']);
+Route::get('/services/{service}', [ServiceController::class, 'show']);
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
