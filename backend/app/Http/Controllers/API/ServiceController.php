@@ -7,6 +7,7 @@ use App\Http\Requests\StoreServiceRequest;
 use App\Models\Service;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Resources\ServiceResource;
 
 class ServiceController extends Controller
 {
@@ -28,7 +29,10 @@ class ServiceController extends Controller
         // Paginate means we show 10 services per page instead of all at once
         $services = $query->with(['category','user'])->paginate(10);
 
-        return response()->json(['success'=>true,'message'=>$services]);
+        return response()->json([
+            'success'=>true,
+            'data' => ServiceResource::collection($services) // Use collection resource
+            ]);
     }
 
     /**
@@ -49,7 +53,7 @@ class ServiceController extends Controller
         return response()->json([
             'success'=>true,
             'message'=>'Service created successfully',
-            'data'=>$service->load(['category','user']) // Include related data in response
+            'data' => new ServiceResource($service->load(['category', 'user']))  // Use single resource
         ],201);
     }
 
@@ -64,7 +68,7 @@ class ServiceController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $service
+            'data' => new ServiceResource($service)  // Use single resource
         ]);
     }
 
@@ -89,7 +93,7 @@ class ServiceController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Service updated successfully',
-            'data' => $service->load(['category', 'user']) // Return updated service with relations
+            'data' => new ServiceResource($service->load(['category', 'user']))  // Use single resource
         ]);
     }
 
@@ -119,7 +123,7 @@ class ServiceController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $services
+            'data' => ServiceResource::collection($services)  // Use collection resource
         ]);
     }
 
