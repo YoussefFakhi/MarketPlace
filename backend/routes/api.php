@@ -37,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function(){
     ->middleware('can:update,service');
     Route::delete('services/{service}',[ServiceController::class,'destroy'])
     ->middleware('can:delete,service');
-    Route::get('/services/my',[ServiceController::class,'myServices']);
+    Route::get('/myservices',[ServiceController::class,'myServices']);
 });
 
 // Public route for browsing services
