@@ -6,6 +6,7 @@ use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\OrderController;
 
 
 Route::post('/register',[AuthController::class,'register']);
@@ -43,6 +44,12 @@ Route::middleware('auth:sanctum')->group(function(){
 // Public route for browsing services
 Route::get('/services', [ServiceController::class, 'index']);
 Route::get('/services/{service}', [ServiceController::class, 'show']);
+
+
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::apiResource('orders', OrderController::class)->except(['destroy']);
+});
 
 // Route::get('/user', function (Request $request) {
 //     return $request->user();
