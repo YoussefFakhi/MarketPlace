@@ -118,6 +118,10 @@ class OrderController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get();
 
+        } elseif ($user->role === 'admin') {
+            $orders = Order::with('service', 'client', 'freelancer')
+                ->orderBy('created_at', 'desc')
+                ->get();
         } else {
             return response()->json([
                 'message' => 'Unauthorized access.'
