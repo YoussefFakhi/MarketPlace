@@ -29,10 +29,7 @@ class ServiceController extends Controller
         // Paginate means we show 10 services per page instead of all at once
         $services = $query->with(['category','user'])->paginate(10);
 
-        return response()->json([
-            'success'=>true,
-            'data' => ServiceResource::collection($services) // Use collection resource
-            ]);
+        return ServiceResource::collection($services);
     }
 
     /**
@@ -76,7 +73,7 @@ class ServiceController extends Controller
      * UPDATE EXISTING SERVICE (OWNER OR ADMIN ONLY)
      * Purpose: Allow service owner or admin to edit service details
      */
-    public function update(Request $request, Service $service)
+    public function update(StoreServiceRequest $request, Service $service)
     {
         // Check if current user can update this specific service
         // Policy allows: service owner OR admin
@@ -121,10 +118,7 @@ class ServiceController extends Controller
                             ->with(['category','user'])
                             ->paginate(10);
 
-        return response()->json([
-            'success' => true,
-            'data' => ServiceResource::collection($services)  // Use collection resource
-        ]);
+        return ServiceResource::collection($services);
     }
 
 
