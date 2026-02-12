@@ -14,6 +14,7 @@ use App\Http\Requests\CreateOrderRequest;
 use App\Http\Requests\UpdateOrderStatusRequest;
 use App\Jobs\SendOrderCreatedNotification;
 use App\Jobs\SendOrderStatusUpdatedNotification;
+use App\Http\Resources\OrderResource;
 
 class OrderController extends Controller
 {    use AuthorizesRequests;
@@ -53,7 +54,7 @@ class OrderController extends Controller
 
             return response()->json([
                 'message' => 'Order created successfully',
-                'data' => $order->load('service', 'client', 'freelancer')
+                'data' => new OrderResource($order->load('service', 'client', 'freelancer'))
             ], 201);
         }catch(\Exception $e){
             DB::rollback();  // error hapend we will not save
@@ -94,7 +95,7 @@ class OrderController extends Controller
 
         return response()->json([
             'message' => 'Order updated successfully',
-            'data' => $order->load('service', 'client', 'freelancer')
+            'data' => new OrderResource($order->load('service', 'client', 'freelancer'))
         ]);
     }
 
@@ -124,7 +125,7 @@ class OrderController extends Controller
         }
 
         return response()->json([
-            'data' => $orders
+            'data' => OrderResource::collection($orders)
         ]);
     }
 
@@ -134,7 +135,7 @@ class OrderController extends Controller
         $this->authorize('view', $order);
 
         return response()->json([
-            'data' => $order->load('service', 'client', 'freelancer')
+            'data' => new OrderResource($order->load('service', 'client', 'freelancer'))
         ]);
     }
 }
