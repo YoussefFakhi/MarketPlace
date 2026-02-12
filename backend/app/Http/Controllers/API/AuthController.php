@@ -13,18 +13,21 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    public function register(RegisterRequest $request){
-        $user = User::create([
-                'name'=>$request->name,
-                'email'=>$request->email,
-                'password'=>Hash::make(value: $request->password),
-                'role' => $request->role ?? 'client', // ← add this
+public function register(RegisterRequest $request){
+    $user = User::create([
+            'name'=>$request->name,
+            'email'=>$request->email,
+            'password'=>Hash::make(value: $request->password),
+            'role' => $request->role ?? 'client',
+    ]);
 
-        ]);
-        Auth::login($user);
+    $token = $user->createToken('login-token')->plainTextToken; // ← add this
 
-        return new UserResource($user);
-    }
+    return response()->json([
+        'token' => $token,                // ← add this
+        'user' => new UserResource($user)
+    ]);
+}
 
     public function login(LoginRequest $request){
         if(!Auth::attempt($request->only('email','password'))){
@@ -37,7 +40,7 @@ class AuthController extends Controller
 
         return response()->json([
             'token' => $token,
-            'user' => new UserResource($user)
+            'user' => (new UserResource($user))->resolve()
         ]);// Return both token and user data
 
         // return $token;
