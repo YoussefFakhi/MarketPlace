@@ -8,6 +8,8 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Http\Resources\CategoryResource;
+
 class CategoryController extends Controller
 {
     use AuthorizesRequests;
@@ -18,7 +20,7 @@ class CategoryController extends Controller
 
         // Get all categories
         $categories = Category::all();
-        return response()->json(['success' => true, 'data' => $categories]);
+        return response()->json(['success' => true, 'data' => CategoryResource::collection($categories)]);
     }
 
     public function store(StoreCategoryRequest $request)
@@ -34,7 +36,7 @@ class CategoryController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Category created successfully',
-            'data' => $category
+            'data' => new CategoryResource($category)
         ], 201);
     }
 
@@ -49,7 +51,7 @@ class CategoryController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Category updated successfully',
-            'data' => $category
+            'data' => new CategoryResource($category)
         ]);
     }
 
