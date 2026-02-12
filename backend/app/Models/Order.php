@@ -12,6 +12,11 @@ class Order extends Model
         'freelancer_id',
         'status',
         'montant',
+        'last_reminder_sent_at'
+    ];
+
+    protected $casts = [
+        'last_reminder_sent_at' => 'datetime',
     ];
 
     public function service()
