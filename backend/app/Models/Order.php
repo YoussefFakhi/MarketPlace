@@ -10,7 +10,8 @@ class Order extends Model
         'service_id',
         'client_id',
         'freelancer_id',
-        'status'
+        'status',
+        'montant',
     ];
 
     public function service()
