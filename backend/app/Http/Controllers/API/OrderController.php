@@ -38,7 +38,9 @@ class OrderController extends Controller
                 'service_id'=> $request->service_id,
                 'client_id'=> $user->id,
                 'freelancer_id'=>$service->user_id,
-                'status' => 'pending'
+                'status' => 'pending',
+                'montant' => $service->price  // Store the service price at time of order
+
             ]);
 
             // Dispatch job to send email notification to freelancer
