@@ -24,7 +24,7 @@ class ServiceResource extends JsonResource
             'updated_at' => $this->updated_at,
             // Include related data only when loaded
             'category' => $this->whenLoaded('category'),
-            'user' => $this->whenLoaded('user'),
+            'user' => new UserResource($this->whenLoaded('user')),
         ];
     }
 }
