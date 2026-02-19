@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref } from 'vue'
-import { useMainStore } from '@/stores/main'
+import { useAuthStore } from '@/stores/auth'
 import { mdiCheckDecagram } from '@mdi/js'
 import BaseLevel from '@/components/BaseLevel.vue'
 import UserAvatarCurrentUser from '@/components/UserAvatarCurrentUser.vue'
@@ -8,9 +8,9 @@ import CardBox from '@/components/CardBox.vue'
 import FormCheckRadio from '@/components/FormCheckRadio.vue'
 import PillTag from '@/components/PillTag.vue'
 
-const mainStore = useMainStore()
+const authStore = useAuthStore()
 
-const userName = computed(() => mainStore.userName)
+const userName = computed(() => authStore.user?.name || 'User')
 
 const userSwitchVal = ref(false)
 </script>
@@ -33,7 +33,7 @@ const userSwitchVal = ref(false)
           Howdy, <b>{{ userName }}</b
           >!
         </h1>
-        <p>Last login <b>12 mins ago</b> from <b>127.0.0.1</b></p>
+        <p> <b> </b> <b> </b></p>
         <div class="flex justify-center md:block">
           <PillTag label="Verified" color="info" :icon="mdiCheckDecagram" />
         </div>

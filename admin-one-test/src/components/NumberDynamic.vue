@@ -23,6 +23,7 @@ const newValueFormatted = computed(() =>
 
 const value = computed(() => props.value)
 
+// Recursive animation loop
 const grow = (m) => {
   const v = Math.ceil(newValue.value + m)
 

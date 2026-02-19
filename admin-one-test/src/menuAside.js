@@ -11,6 +11,9 @@ import {
   mdiResponsive,
   mdiPalette,
   mdiLogout,
+  mdiFormatListBulletedType,
+  mdiCartOutline,
+  mdiAccountGroup,
 } from '@mdi/js'
 
 export const menuAsideMain = [
@@ -20,62 +23,29 @@ export const menuAsideMain = [
     label: 'Dashboard',
   },
   {
-    to: '/tables',
-    label: 'Tables',
-    icon: mdiTable,
+    to: '/users-management',
+    label: 'Users',
+    icon: mdiAccountGroup,
   },
   {
-    to: '/forms',
-    label: 'Forms',
-    icon: mdiSquareEditOutline,
+    to: '/categories',
+    label: 'Categories',
+    icon: mdiFormatListBulletedType,
   },
   {
-    to: '/ui',
-    label: 'UI',
-    icon: mdiTelevisionGuide,
+    to: '/services-moderation',
+    label: 'Services',
+    icon: mdiViewList,
   },
   {
-    to: '/responsive',
-    label: 'Responsive',
-    icon: mdiResponsive,
-  },
-  {
-    to: '/',
-    label: 'Styles',
-    icon: mdiPalette,
+    to: '/orders-monitoring',
+    label: 'Orders',
+    icon: mdiCartOutline,
   },
   {
     to: '/profile',
     label: 'Profile',
     icon: mdiAccountCircle,
-  },
-  {
-    to: '/login',
-    label: 'Login',
-    icon: mdiLock,
-  },
-  {
-    to: '/error',
-    label: 'Error',
-    icon: mdiAlertCircle,
-  },
-  {
-    label: 'Dropdown',
-    icon: mdiViewList,
-    menu: [
-      {
-        label: 'Item One',
-      },
-      {
-        label: 'Item Two',
-      },
-    ],
-  },
-  {
-    href: 'https://github.com/justboil/admin-one-vue-tailwind',
-    label: 'GitHub',
-    icon: mdiGithub,
-    target: '_blank',
   },
 ]
 

@@ -2,12 +2,14 @@
 import { mdiChevronUp, mdiChevronDown } from '@mdi/js'
 import { RouterLink } from 'vue-router'
 import { computed, ref, onMounted, onBeforeUnmount } from 'vue'
-import { useMainStore } from '@/stores/main.js'
+import { useAuthStore } from '@/stores/auth.js'
 import BaseIcon from '@/components/BaseIcon.vue'
 import UserAvatarCurrentUser from '@/components/UserAvatarCurrentUser.vue'
 import NavBarMenuList from '@/components/NavBarMenuList.vue'
 import BaseDivider from '@/components/BaseDivider.vue'
 import { useDarkModeStore } from '@/stores/darkMode'
+
+const authStore = useAuthStore()
 
 const props = defineProps({
   item: {
@@ -46,7 +48,7 @@ const componentClass = computed(() => {
 })
 
 const itemLabel = computed(() =>
-  props.item.isCurrentUser ? useMainStore().userName : props.item.label,
+  props.item.isCurrentUser ? authStore.user?.name : props.item.label,
 )
 
 const isDropdownActive = ref(false)

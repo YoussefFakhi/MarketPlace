@@ -1,5 +1,5 @@
 <script setup>
-import { mdiCog } from '@mdi/js'
+import { mdiCog } from '@mdi/js'//: A settings icon from Material Design Icons
 import CardBox from '@/components/CardBox.vue'
 import NumberDynamic from '@/components/NumberDynamic.vue'
 import BaseIcon from '@/components/BaseIcon.vue'
@@ -8,17 +8,17 @@ import PillTagTrend from '@/components/PillTagTrend.vue'
 import BaseButton from '@/components/BaseButton.vue'
 
 defineProps({
-  number: {
+  number: {                // The main number to display
     type: Number,
     default: 0,
   },
-  icon: String,
-  prefix: String,
-  suffix: String,
-  label: String,
-  color: String,
-  trend: String,
-  trendType: String,
+  icon: String,           // Icon to display (optional)
+  prefix: String,         // Text before number (e.g., "$")
+  suffix: String,         // Text after number (e.g., "%")
+  label: String,          // Description text
+  color: String,          // Color class for the icon
+  trend: String,          // Trend value (e.g., "12%")
+  trendType: String,      // Type of trend ('up' or 'down')
 })
 </script>
 
