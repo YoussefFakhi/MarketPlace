@@ -1,38 +1,63 @@
 <script setup>
-import { reactive } from 'vue'
-import { useMainStore } from '@/stores/main'
-import { mdiAccount, mdiMail, mdiAsterisk, mdiFormTextboxPassword, mdiGithub } from '@mdi/js'
+import { reactive, ref } from 'vue'
+import { useAuthStore } from '@/stores/auth'
+import { mdiAccount, mdiMail, mdiAsterisk, mdiFormTextboxPassword } from '@mdi/js'
 import SectionMain from '@/components/SectionMain.vue'
 import CardBox from '@/components/CardBox.vue'
 import BaseDivider from '@/components/BaseDivider.vue'
 import FormField from '@/components/FormField.vue'
 import FormControl from '@/components/FormControl.vue'
-import FormFilePicker from '@/components/FormFilePicker.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseButtons from '@/components/BaseButtons.vue'
 import UserCard from '@/components/UserCard.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
+import NotificationBar from '@/components/NotificationBar.vue'
 
-const mainStore = useMainStore()
+const authStore = useAuthStore()
 
 const profileForm = reactive({
-  name: mainStore.userName,
-  email: mainStore.userEmail,
+  name: authStore.user?.name || '',
+  email: authStore.user?.email || '',
 })
 
 const passwordForm = reactive({
-  password_current: '',
+  current_password: '',
   password: '',
   password_confirmation: '',
 })
 
-const submitProfile = () => {
-  mainStore.setUser(profileForm)
+const isLoading = ref(false)
+const message = ref(null)
+
+const submitProfile = async () => {
+  isLoading.value = true
+  message.value = null
+  try {
+    const response = await authStore.updateProfile(profileForm)
+    message.value = { type: 'success', text: response.message }
+  } catch (error) {
+    message.value = { type: 'danger', text: error }
+  } finally {
+    isLoading.value = false
+  }
 }
 
-const submitPass = () => {
-  //
+const submitPass = async () => {
+  isLoading.value = true
+  message.value = null
+  try {
+    const response = await authStore.updatePassword(passwordForm)
+    message.value = { type: 'success', text: response.message }
+    // Reset password form
+    passwordForm.current_password = ''
+    passwordForm.password = ''
+    passwordForm.password_confirmation = ''
+  } catch (error) {
+    message.value = { type: 'danger', text: error }
+  } finally {
+    isLoading.value = false
+  }
 }
 </script>
 
@@ -40,25 +65,16 @@ const submitPass = () => {
   <LayoutAuthenticated>
     <SectionMain>
       <SectionTitleLineWithButton :icon="mdiAccount" title="Profile" main>
-        <BaseButton
-          href="https://github.com/justboil/admin-one-vue-tailwind"
-          target="_blank"
-          :icon="mdiGithub"
-          label="Star on GitHub"
-          color="contrast"
-          rounded-full
-          small
-        />
       </SectionTitleLineWithButton>
+
+      <NotificationBar v-if="message" :color="message.type" :icon="mdiAccount" @dismiss="message = null">
+        {{ message.text }}
+      </NotificationBar>
 
       <UserCard class="mb-6" />
 
       <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
         <CardBox is-form @submit.prevent="submitProfile">
-          <FormField label="Avatar" help="Max 500kb">
-            <FormFilePicker label="Upload" />
-          </FormField>
-
           <FormField label="Name" help="Required. Your name">
             <FormControl
               v-model="profileForm.name"
@@ -81,8 +97,7 @@ const submitPass = () => {
 
           <template #footer>
             <BaseButtons>
-              <BaseButton color="info" type="submit" label="Submit" />
-              <BaseButton color="info" label="Options" outline />
+              <BaseButton color="info" type="submit" label="Update Profile" :disabled="isLoading" />
             </BaseButtons>
           </template>
         </CardBox>
@@ -90,7 +105,7 @@ const submitPass = () => {
         <CardBox is-form @submit.prevent="submitPass">
           <FormField label="Current password" help="Required. Your current password">
             <FormControl
-              v-model="passwordForm.password_current"
+              v-model="passwordForm.current_password"
               :icon="mdiAsterisk"
               name="password_current"
               type="password"
@@ -125,8 +140,7 @@ const submitPass = () => {
 
           <template #footer>
             <BaseButtons>
-              <BaseButton type="submit" color="info" label="Submit" />
-              <BaseButton color="info" label="Options" outline />
+              <BaseButton type="submit" color="info" label="Update Password" :disabled="isLoading" />
             </BaseButtons>
           </template>
         </CardBox>

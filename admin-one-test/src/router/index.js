@@ -1,16 +1,11 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
-import Style from '@/views/StyleView.vue'
 import Home from '@/views/HomeView.vue'
 
 const routes = [
   {
-    meta: {
-      title: 'Select style',
-    },
     path: '/',
-    name: 'style',
-    component: Style,
+    redirect: '/dashboard',
   },
   {
     meta: {
@@ -23,24 +18,6 @@ const routes = [
   },
   {
     meta: {
-      title: 'Tables',
-      requiresAuth: true
-    },
-    path: '/tables',
-    name: 'tables',
-    component: () => import('@/views/TablesView.vue'),
-  },
-  {
-    meta: {
-      title: 'Forms',
-      requiresAuth: true
-    },
-    path: '/forms',
-    name: 'forms',
-    component: () => import('@/views/FormsView.vue'),
-  },
-  {
-    meta: {
       title: 'Profile',
       requiresAuth: true
     },
@@ -50,30 +27,48 @@ const routes = [
   },
   {
     meta: {
-      title: 'Ui',
-      requiresAuth: true
-    },
-    path: '/ui',
-    name: 'ui',
-    component: () => import('@/views/UiView.vue'),
-  },
-  {
-    meta: {
-      title: 'Responsive layout',
-      requiresAuth: true
-    },
-    path: '/responsive',
-    name: 'responsive',
-    component: () => import('@/views/ResponsiveView.vue'),
-  },
-  {
-    meta: {
       title: 'Login',
       guestOnly: true
     },
     path: '/login',
     name: 'login',
     component: () => import('@/views/LoginView.vue'),
+  },
+  {
+    meta: {
+      title: 'Services',
+      requiresAuth: true
+    },
+    path: '/services-moderation',
+    name: 'services-moderation',
+    component: () => import('@/views/ServicesView.vue'),
+  },
+  {
+    meta: {
+      title: 'Categories',
+      requiresAuth: true
+    },
+    path: '/categories',
+    name: 'categories',
+    component: () => import('@/views/CategoriesView.vue'),
+  },
+  {
+    meta: {
+      title: 'Orders',
+      requiresAuth: true
+    },
+    path: '/orders-monitoring',
+    name: 'orders-monitoring',
+    component: () => import('@/views/OrdersView.vue'),
+  },
+  {
+    meta: {
+      title: 'Users',
+      requiresAuth: true
+    },
+    path: '/users-management',
+    name: 'users-management',
+    component: () => import('@/views/UsersView.vue'),
   },
   {
     meta: {
