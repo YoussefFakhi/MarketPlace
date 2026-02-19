@@ -1,92 +1,161 @@
 <script setup>
-import { computed, ref, onMounted } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useMainStore } from '@/stores/main'
+import { useCategoryStore } from '@/stores/category'
+import { useServiceStore } from '@/stores/service'
+import { useOrderStore } from '@/stores/order'
+import { useStatsStore } from '@/stores/stats'
 import {
   mdiAccountMultiple,
   mdiCartOutline,
   mdiChartTimelineVariant,
-  mdiMonitorCellphone,
   mdiReload,
-  mdiGithub,
   mdiChartPie,
+  mdiViewList,
 } from '@mdi/js'
 import * as chartConfig from '@/components/Charts/chart.config.js'
 import LineChart from '@/components/Charts/LineChart.vue'
 import SectionMain from '@/components/SectionMain.vue'
 import CardBoxWidget from '@/components/CardBoxWidget.vue'
 import CardBox from '@/components/CardBox.vue'
-import TableSampleClients from '@/components/TableSampleClients.vue'
 import NotificationBar from '@/components/NotificationBar.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import CardBoxTransaction from '@/components/CardBoxTransaction.vue'
 import CardBoxClient from '@/components/CardBoxClient.vue'
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
-import SectionBannerStarOnGitHub from '@/components/SectionBannerStarOnGitHub.vue'
+import TableServices from '@/components/TableServices.vue'
+
+const categoryStore = useCategoryStore()
+const serviceStore = useServiceStore()
+const orderStore = useOrderStore()
+const statsStore = useStatsStore()
+const mainStore = useMainStore()
 
 const chartData = ref(null)
 
 const fillChartData = () => {
-  chartData.value = chartConfig.sampleChartData()
+  if (statsStore.charts.labels.length > 0) {
+    chartData.value = {
+      labels: statsStore.charts.labels,
+      datasets: [
+        {
+          label: 'Daily Revenue ($)',
+          fill: false,
+          borderColor: '#10b981', // Emerald
+          borderWidth: 2,
+          borderDash: [],
+          borderDashOffset: 0.0,
+          pointBackgroundColor: '#10b981',
+          pointBorderColor: 'rgba(255,255,255,0)',
+          pointHoverBackgroundColor: '#10b981',
+          pointBorderWidth: 20,
+          pointHoverRadius: 4,
+          pointHoverBorderWidth: 15,
+          pointRadius: 4,
+          data: statsStore.charts.revenue, // Real Revenue Data
+          tension: 0.5
+        },
+        {
+          label: 'Daily Orders',
+          fill: false,
+          borderColor: '#3b82f6', // Blue
+          borderWidth: 2,
+          data: statsStore.charts.orders, // Real Order Count Data
+          tension: 0.5
+        }
+      ]
+    }
+  } else {
+    chartData.value = chartConfig.sampleChartData()
+  }
 }
 
-onMounted(() => {
+const fetchAllData = async () => {
+  await statsStore.fetchStats()
   fillChartData()
+  categoryStore.fetchCategories(categoryStore.pagination.current_page)
+  serviceStore.fetchServices(serviceStore.pagination.current_page)
+  orderStore.fetchOrders(orderStore.pagination.current_page)
+}
+
+let polling = null
+
+onMounted(() => {
+  fetchAllData() 
+  polling = setInterval(fetchAllData, 30000)
 })
 
-const mainStore = useMainStore()
+onUnmounted(() => { //stop polling when component unmounts
+  if (polling) clearInterval(polling)
+})
 
-const clientBarItems = computed(() => mainStore.clients.slice(0, 4))
+const totalCategories = computed(() => categoryStore.categories.length)
+const totalServices = computed(() => statsStore.totals.services)
+const totalOrders = computed(() => statsStore.totals.orders)
+const totalRevenue = computed(() => statsStore.totals.revenue)
 
-const transactionBarItems = computed(() => mainStore.history)
+// take info from store and reformulate it so we can use it in dashboard
+const transactionBarItems = computed(() => {
+  return orderStore.orders.slice(0, 4).map(order => ({
+    amount: parseFloat(order.montant),
+    date: new Date(order.created_at).toLocaleDateString(),
+    business: order.service?.title || 'Unknown Service',
+    type: order.status === 'completed' ? 'deposit' : 'invoice',
+    name: order.client?.name || 'Client',
+    account: order.freelancer?.name || 'Freelancer'
+  }))
+})
+
+const activityItems = computed(() => {
+  return serviceStore.services.slice(0, 4).map(service => ({
+    name: service.user?.name || 'User',
+    login: service.title,
+    date: new Date(service.created_at).toLocaleDateString(),
+    progress: Math.min(100, Math.round(parseFloat(service.price))), // use price as fake progress for UI
+    text: `$${service.price}`,
+    type: 'success'
+  }))
+})
 </script>
 
 <template>
   <LayoutAuthenticated>
     <SectionMain>
       <SectionTitleLineWithButton :icon="mdiChartTimelineVariant" title="Overview" main>
-        <BaseButton
-          href="https://github.com/justboil/admin-one-vue-tailwind"
-          target="_blank"
-          :icon="mdiGithub"
-          label="Star on GitHub"
-          color="contrast"
-          rounded-full
-          small
-        />
       </SectionTitleLineWithButton>
 
       <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-3">
         <CardBoxWidget
-          trend="12%"
+          trend="Live"
           trend-type="up"
           color="text-emerald-500"
-          :icon="mdiAccountMultiple"
-          :number="512"
-          label="Clients"
-        />
-        <CardBoxWidget
-          trend="12%"
-          trend-type="down"
-          color="text-blue-500"
           :icon="mdiCartOutline"
-          :number="7770"
+          :number="totalRevenue"
           prefix="$"
-          label="Sales"
+          label="Total Revenue"
         />
         <CardBoxWidget
-          trend="Overflow"
-          trend-type="alert"
-          color="text-red-500"
+          trend="Transactions"
+          trend-type="info"
+          color="text-blue-500"
           :icon="mdiChartTimelineVariant"
-          :number="256"
-          suffix="%"
-          label="Performance"
+          :number="totalOrders"
+          label="Total Orders"
+        />
+        <CardBoxWidget
+          trend="Marketplace"
+          trend-type="up"
+          color="text-red-500"
+          :icon="mdiViewList"
+          :number="totalServices"
+          label="Live Services"
         />
       </div>
 
       <div class="mb-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <div class="flex flex-col justify-between">
+          <SectionTitleLineWithButton :icon="mdiChartTimelineVariant" title="Recent Orders" />
           <CardBoxTransaction
             v-for="(transaction, index) in transactionBarItems"
             :key="index"
@@ -97,23 +166,30 @@ const transactionBarItems = computed(() => mainStore.history)
             :name="transaction.name"
             :account="transaction.account"
           />
+          <div v-if="transactionBarItems.length === 0" class="text-center p-6 text-gray-500">
+            No recent orders.
+          </div>
         </div>
         <div class="flex flex-col justify-between">
+          <SectionTitleLineWithButton :icon="mdiAccountMultiple" title="Latest Services" />
           <CardBoxClient
-            v-for="client in clientBarItems"
-            :key="client.id"
-            :name="client.name"
-            :login="client.login"
-            :date="client.created"
-            :progress="client.progress"
+            v-for="(activity, index) in activityItems"
+            :key="index"
+            :name="activity.name"
+            :login="activity.login"
+            :date="activity.date"
+            :progress="activity.progress"
+            :text="activity.text"
+            :type="activity.type"
           />
+          <div v-if="activityItems.length === 0" class="text-center p-6 text-gray-500">
+            No recent activity.
+          </div>
         </div>
       </div>
 
-      <SectionBannerStarOnGitHub class="mt-6 mb-6" />
-
-      <SectionTitleLineWithButton :icon="mdiChartPie" title="Trends overview">
-        <BaseButton :icon="mdiReload" color="whiteDark" @click="fillChartData" />
+      <SectionTitleLineWithButton :icon="mdiChartPie" title="Marketplace Trends">
+        <BaseButton :icon="mdiReload" color="whiteDark" @click="fetchAllData" />
       </SectionTitleLineWithButton>
 
       <CardBox class="mb-6">
@@ -122,14 +198,8 @@ const transactionBarItems = computed(() => mainStore.history)
         </div>
       </CardBox>
 
-      <SectionTitleLineWithButton :icon="mdiAccountMultiple" title="Clients" />
-
-      <NotificationBar color="info" :icon="mdiMonitorCellphone">
-        <b>Responsive table.</b> Collapses on mobile
-      </NotificationBar>
-
       <CardBox has-table>
-        <TableSampleClients />
+        <TableServices />
       </CardBox>
     </SectionMain>
   </LayoutAuthenticated>
