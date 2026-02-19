@@ -7,13 +7,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
 use App\Http\Controllers\API\OrderController;
+use App\Http\Controllers\API\UserController;
+use App\Http\Controllers\API\StatsController;
 
 
 Route::post('/register',[AuthController::class,'register']);
 Route::post('/login',[AuthController::class,'login']);
 
 Route::get('/user',[AuthController::class,'user'])->middleware('auth:sanctum');
+Route::put('/profile',[AuthController::class,'updateProfile'])->middleware('auth:sanctum');
+Route::put('/profile/password',[AuthController::class,'updatePassword'])->middleware('auth:sanctum');
 Route::post('/logout',[AuthController::class,'logout'])->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/users', [UserController::class, 'index']);
+    Route::delete('/users/{user}', [UserController::class, 'destroy']);
+    Route::get('/stats', [StatsController::class, 'index']);
+});
 
 
 Route::middleware('auth:sanctum')->group(function () {

@@ -106,31 +106,27 @@ class OrderController extends Controller
         // Show orders based on user role
         if ($user->role === 'client') {
             $orders = Order::where('client_id', $user->id)
-
                 ->with('service', 'freelancer')
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->paginate(10);
 
         } elseif ($user->role === 'freelancer') {
-
             $orders = Order::where('freelancer_id', $user->id)
                 ->with('service', 'client')
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->paginate(10);
 
         } elseif ($user->role === 'admin') {
             $orders = Order::with('service', 'client', 'freelancer')
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->paginate(10);
         } else {
             return response()->json([
                 'message' => 'Unauthorized access.'
             ], 403);
         }
 
-        return response()->json([
-            'data' => OrderResource::collection($orders)
-        ]);
+        return OrderResource::collection($orders);
     }
 
     public function show(Order $order, Request $request)

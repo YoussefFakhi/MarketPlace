@@ -18,9 +18,9 @@ class CategoryController extends Controller
     {
         $this->authorize('viewAny', Category::class);
 
-        // Get all categories
-        $categories = Category::all();
-        return response()->json(['success' => true, 'data' => CategoryResource::collection($categories)]);
+        // Get paginated categories
+        $categories = Category::latest()->paginate(10);
+        return CategoryResource::collection($categories);
     }
 
     public function store(StoreCategoryRequest $request)

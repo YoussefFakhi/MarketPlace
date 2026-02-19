@@ -17,8 +17,14 @@ class ServiceController extends Controller
      */
     public function index(Request $request)
     {
-        // Start with only active services (is_active = true)
-        $query = Service::where('is_active',true);
+        // Try to get the user from the sanctum guard even if the route is public
+        $user = auth('sanctum')->user();
+
+        // If it's an admin, show everything. Otherwise, only active services.
+        $query = Service::query();
+        if (!$user || $user->role !== 'admin') {
+            $query->where('is_active', true);
+        }
 
         // Filter by category if user sends category_id parameter
         if($request->has('category_id')){
@@ -27,7 +33,7 @@ class ServiceController extends Controller
 
         // Load related data (category and user info) and paginate results
         // Paginate means we show 10 services per page instead of all at once
-        $services = $query->with(['category','user'])->paginate(10);
+        $services = $query->with(['category','user'])->latest()->paginate(10);
 
         return ServiceResource::collection($services);
     }
@@ -80,12 +86,7 @@ class ServiceController extends Controller
         $this->authorize('update',$service);
 
 
-        $service->update([
-            'title' => $request->title,
-            'description' => $request->description,
-            'price' => $request->price,
-            'category_id' => $request->category_id,
-        ]);
+        $service->update($request->validated());
 
         return response()->json([
             'success' => true,
@@ -116,6 +117,7 @@ class ServiceController extends Controller
     public function myServices(Request $request){
         $services = Service::where('user_id',$request->user()->id)
                             ->with(['category','user'])
+                            ->latest()
                             ->paginate(10);
 
         return ServiceResource::collection($services);

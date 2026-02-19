@@ -22,10 +22,11 @@ class StoreServiceRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'=>'required|string|max:255',
-            'description'=>'required|string',
-            'price'=>'required|numeric|min:0.01',
-            'category_id'=>'required|exists:categories,id',
+            'title'=>'sometimes|required|string|max:255',
+            'description'=>'sometimes|required|string',
+            'price'=>'sometimes|required|numeric|min:0.01',
+            'category_id'=>'sometimes|required|exists:categories,id',
+            'is_active'=>'sometimes|boolean',
         ];
     }
 
