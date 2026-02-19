@@ -1,21 +1,22 @@
 <script setup>
+import { RouterView } from 'vue-router';
 import { onMounted } from 'vue'
 import { useAuthStore } from './stores/auth'
-import Navigation from './components/Navigation.vue'
 
 const authStore = useAuthStore()
 
 // Initialize user on app load
 onMounted(() => {
-  authStore.fetchUser()
-})
+  // Check if token exists and fetch user data
+  if (authStore.token) {
+    authStore.fetchUser().catch(() => {
+      // If fetch fails, user might have invalid token
+      authStore.logout();
+    });
+  }
+});
 </script>
 
 <template>
-  <div style="min-height: 100vh; background-color: #f9fafb;">
-    <Navigation />
-    <main style="max-width: 1200px; margin: 0 auto; padding: 0 16px; padding-top: 32px;">
-      <router-view />
-    </main>
-  </div>
+  <RouterView />
 </template>

@@ -1,116 +1,72 @@
-import { defineStore } from 'pinia'
-import api from '../services/api'
+import { defineStore } from 'pinia';
+import api from '../plugins/axios';
 
-export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    user: null,
-    loading: false,
-    error: null,
-    token: null  // Add token storage
-  }),
+export const useAuthStore = defineStore('auth',{
+    state:()=>({
+        user: JSON.parse(localStorage.getItem('user')) || null,
+        token: localStorage.getItem('token') || null,
+    }),
+    getters: { // just can take the vaallue from the state 
+        isAuthenticated: (state) => !!state.token,
+        role: (state) => state.user?.role || null,
+        isClient: (state) => state.user?.role === 'client',
+        isFreelancer: (state) => state.user?.role === 'freelancer',
+        isAdmin: (state) => state.user?.role === 'admin',
+    },
 
-  getters: {
-    isLoggedIn: (state) => !!state.user,
-    role: (state) => state.user?.role || null,
-    userName: (state) => state.user?.name || '',
-    userEmail: (state) => state.user?.email || ''
-  },
+    actions:{// action can modifie the value inside the state 
+        async login(credentials){
+            try {
+                const response = api.get('/login',credentials);
+                this.token = response.data.token;
+                this.user = response.data.user;
 
-  actions: {
-    // Fetch current user information
-    async fetchUser() {
-      if (!this.token) {
-        this.user = null
-        return
-      }
-      
-      this.loading = true
-      this.error = null
-      
-      try {
-        // Add token to headers for this request
-        const response = await api.get('/api/user', {
-          headers: {
-            'Authorization': `Bearer ${this.token}`
-          }
-        })
-        this.user = response.data
-      } catch (error) {
-        this.user = null
-        this.token = null
-        if (error.response?.status !== 401) {
-          this.error = error.message
+                localStorage.setItem('token',this.token);
+                localStorage.setItem('user',JSON.stringify(this.user));
+
+                return true;
+            } catch (error) {
+                throw error.response?.data?.message || 'Login failed';
+            }
+        },
+
+        async register(userData){
+            try {
+                const response = await api.post('/register', userData);
+                this.token = response.data.token;
+                this.user = response.data.user;
+
+                localStorage.setItem('token', this.token);
+                localStorage.setItem('user', JSON.stringify(this.user));
+
+                return true;
+            } catch (error) {
+                throw error.response?.data?.message || 'Registration failed';
+            }
+        },
+        async logout() {
+            try {
+                // 1. Tell Laravel to destroy the token
+                await api.post('/logout');
+            } catch (error) {
+                // 2. If Laravel fails, we can still logout locally
+                console.error(' backend Logout failed:', error);
+            } finally{
+                this.token = null;
+                this.user = null;
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+            }
+        },
+        async fetchUser() {
+            try {
+                const response = await api.get('/user');
+                this.user = response.data;
+                localStorage.setItem('user', JSON.stringify(response.data));
+            } catch (error) {
+                this.logout();
+                throw error;
+            }
         }
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async register(userData) {
-      this.loading = true
-      this.error = null
-      
-      try {
-        const response = await api.post('/api/register', userData)
-        
-        // Store both token and user
-        this.token = response.data.token
-        this.user = response.data.user
-        
-        // Set token in axios defaults for future requests
-        api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
-        
-        return response.data
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Registration failed'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async login(credentials) {
-      this.loading = true
-      this.error = null
-      
-      try {
-        const response = await api.post('/api/login', credentials)
-        
-        // Store both token and user
-        this.token = response.data.token
-        this.user = response.data.user
-        
-        // Set token in axios defaults for future requests
-        api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`
-        
-        return response.data
-      } catch (error) {
-        this.error = error.response?.data?.message || 'Login failed'
-        throw error
-      } finally {
-        this.loading = false
-      }
-    },
-
-    async logout() {
-      this.loading = true
-      this.error = null
-      
-      try {
-        await api.post('/api/logout', {}, {
-          headers: {
-            'Authorization': `Bearer ${this.token}`
-          }
-        })
-      } catch (error) {
-        console.error('Logout error:', error)
-      } finally {
-        // Clear both token and user
-        this.token = null
-        this.user = null
-        delete api.defaults.headers.common['Authorization']
-        this.loading = false
-      }
     }
-  }
 })
