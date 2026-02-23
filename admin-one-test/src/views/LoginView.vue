@@ -12,26 +12,33 @@ import BaseButton from '@/components/BaseButton.vue'
 import BaseButtons from '@/components/BaseButtons.vue'
 import LayoutGuest from '@/layouts/LayoutGuest.vue'
 
-const form = reactive({
-  email: 'admin@example.com',
-  password: 'password',
-  remember: true,
-})
+// const form = reactive({
+//   email: 'admin@example.com',
+//   password: 'password',
+//   remember: true,
+// })
+
+const email = ref('');
+const password =ref('');
+const remember = ref(true);
 
 const router = useRouter()
 const authStore = useAuthStore()
 const isLoading = ref(false)
 const errorMessage = ref('')
 
+const roleHome = { admin: '/dashboard', freelancer: '/freelancer/dashboard', client: '/client/dashboard' }
+
 const submit = async () => {
   isLoading.value = true
   errorMessage.value = ''
   try {
     await authStore.login({
-      email: form.email,
-      password: form.password
+      email: email.value,
+      password: password.value
     })
-    router.push('/dashboard')
+    const dest = roleHome[authStore.user?.role] || '/dashboard'
+    router.push(dest)
   } catch (error) {
     errorMessage.value = error
   } finally {
@@ -50,7 +57,7 @@ const submit = async () => {
 
         <FormField label="Email" help="Please enter your email">
           <FormControl
-            v-model="form.email"
+            v-model="email"
             :icon="mdiAccount"
             name="email"
             type="email"
@@ -60,7 +67,7 @@ const submit = async () => {
 
         <FormField label="Password" help="Please enter your password">
           <FormControl
-            v-model="form.password"
+            v-model="password"
             :icon="mdiAsterisk"
             type="password"
             name="password"
@@ -69,7 +76,7 @@ const submit = async () => {
         </FormField>
 
         <FormCheckRadio
-          v-model="form.remember"
+          v-model="remember"
           name="remember"
           label="Remember"
           :input-value="true"
