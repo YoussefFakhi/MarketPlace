@@ -1,6 +1,6 @@
 <script setup>
 import { computed, ref, onMounted, onUnmounted } from 'vue'
-import { useMainStore } from '@/stores/main'
+//import { useMainStore } from '@/stores/main'
 import { useCategoryStore } from '@/stores/category'
 import { useServiceStore } from '@/stores/service'
 import { useOrderStore } from '@/stores/order'
@@ -18,7 +18,7 @@ import LineChart from '@/components/Charts/LineChart.vue'
 import SectionMain from '@/components/SectionMain.vue'
 import CardBoxWidget from '@/components/CardBoxWidget.vue'
 import CardBox from '@/components/CardBox.vue'
-import NotificationBar from '@/components/NotificationBar.vue'
+//import NotificationBar from '@/components/NotificationBar.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import CardBoxTransaction from '@/components/CardBoxTransaction.vue'
 import CardBoxClient from '@/components/CardBoxClient.vue'
@@ -30,7 +30,7 @@ const categoryStore = useCategoryStore()
 const serviceStore = useServiceStore()
 const orderStore = useOrderStore()
 const statsStore = useStatsStore()
-const mainStore = useMainStore()
+//const mainStore = useMainStore()
 
 const chartData = ref(null)
 
@@ -82,7 +82,7 @@ const fetchAllData = async () => {
 let polling = null
 
 onMounted(() => {
-  fetchAllData() 
+  fetchAllData()
   polling = setInterval(fetchAllData, 30000)
 })
 
@@ -90,7 +90,7 @@ onUnmounted(() => { //stop polling when component unmounts
   if (polling) clearInterval(polling)
 })
 
-const totalCategories = computed(() => categoryStore.categories.length)
+//const totalCategories = computed(() => categoryStore.categories.length)
 const totalServices = computed(() => statsStore.totals.services)
 const totalOrders = computed(() => statsStore.totals.orders)
 const totalRevenue = computed(() => statsStore.totals.revenue)
