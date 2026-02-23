@@ -19,16 +19,21 @@ class StoreServiceRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
-        return [
-            'title'=>'sometimes|required|string|max:255',
-            'description'=>'sometimes|required|string',
-            'price'=>'sometimes|required|numeric|min:0.01',
-            'category_id'=>'sometimes|required|exists:categories,id',
-            'is_active'=>'sometimes|boolean',
-        ];
-    }
+public function rules(): array
+{
+    // If it's an update (PUT), we make fields optional (only validate if present)
+    $isUpdate = $this->isMethod('PUT') || $this->isMethod('PATCH');
+    $required = $isUpdate ? 'sometimes' : 'required';
+
+    return [
+        'title'       => "$required|string|max:255",
+        'description' => "$required|string",
+        'price'       => "$required|numeric|min:0.01",
+        'category_id' => "$required|exists:categories,id",
+        'is_active'   => 'sometimes|boolean',
+    ];
+}
+
 
     public function messages()
     {
