@@ -137,7 +137,7 @@ const confirmDelete = async () => {
               :color="service.is_active ? 'warning' : 'success'"
               :icon="service.is_active ? mdiCloseOctagon : mdiCheckDecagram"
               small
-              @click="toggleStatus(service)"  
+              @click="toggleStatus(service)"
               :title="service.is_active ? 'Deactivate' : 'Activate'"
             />
             <BaseButton color="info" :icon="mdiEye" small @click="viewClick(service)" />
