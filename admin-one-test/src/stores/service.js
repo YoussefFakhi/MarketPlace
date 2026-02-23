@@ -14,11 +14,14 @@ export const useServiceStore = defineStore('service', {
   }),
 
   actions: {
-    async fetchServices(page = 1) {
+    async fetchServices(page = 1, params = {}) {
       this.loading = true;
       try {
-        const response = await api.get(`/services?page=${page}`);
-        // Laravel's paginate returns data in response.data.data
+      //all categories
+        // Build query string from params object
+        const queryParams = new URLSearchParams({ page, ...params }).toString();
+        const response = await api.get(`/services?${queryParams}`);
+        
         this.services = response.data.data;
         this.pagination = {
           current_page: response.data.meta.current_page,

@@ -3,13 +3,13 @@ import { ref, computed, onMounted } from 'vue'
 import { useServiceStore } from '@/stores/service'
 import { useCategoryStore } from '@/stores/category'
 import api from '@/plugins/axios'
-import { mdiMagnify, mdiCartOutline, mdiFilterOutline } from '@mdi/js'
+import { mdiMagnify, mdiCartOutline} from '@mdi/js'  //mdiFilterOutline
 import LayoutAuthenticated from '@/layouts/LayoutAuthenticated.vue'
 import SectionMain from '@/components/SectionMain.vue'
 import SectionTitleLineWithButton from '@/components/SectionTitleLineWithButton.vue'
 import BaseButton from '@/components/BaseButton.vue'
 import BaseButtons from '@/components/BaseButtons.vue'
-import BaseLevel from '@/components/BaseLevel.vue'
+// import BaseLevel from '@/components/BaseLevel.vue'
 import CardBoxModal from '@/components/CardBoxModal.vue'
 import NotificationBar from '@/components/NotificationBar.vue'
 import PillTag from '@/components/PillTag.vue'
@@ -50,8 +50,8 @@ const pagesList = computed(() => {
 
 const filterByCategory = (categoryId) => {
   selectedCategory.value = categoryId
-  const params = categoryId ? { page: 1, category_id: categoryId } : { page: 1 }
-  serviceStore.fetchServices(1)
+  const params = categoryId ? { category_id: categoryId } : {}
+  serviceStore.fetchServices(1, params)
 }
 
 const openDetail = (service) => {
@@ -176,7 +176,7 @@ const confirmOrder = async () => {
             :active="page === currentPage" :label="page"
             :color="page === currentPage ? 'lightDark' : 'whiteDark'"
             small :disabled="isLoading"
-            @click="serviceStore.fetchServices(page)"
+            @click="serviceStore.fetchServices(page, selectedCategory ? { category_id: selectedCategory } : {})"
           />
         </BaseButtons>
       </div>
