@@ -1,8 +1,8 @@
 <script setup>
 import { useAuthStore } from '@/stores/auth.js'
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { menuAsideMain, menuAsideBottom } from '@/menuAside.js'
+import { menuAdmin, menuFreelancer, menuClient, menuAsideBottom } from '@/menuAside.js'
 import menuNavBar from '@/menuNavBar.js'
 import { useDarkModeStore } from '@/stores/darkMode.js'
 import BaseIcon from '@/components/BaseIcon.vue'
@@ -11,17 +11,23 @@ import NavBar from '@/components/NavBar.vue'
 import NavBarItemPlain from '@/components/NavBarItemPlain.vue'
 import AsideMenu from '@/components/AsideMenu.vue'
 import FooterBar from '@/components/FooterBar.vue'
-import PremiumVersionBadge from '@/components/PremiumVersionBadge.vue'
 
 const layoutAsidePadding = 'xl:pl-60'
 
 const darkModeStore = useDarkModeStore()
 const authStore = useAuthStore()
-
 const router = useRouter()
 
 const isAsideMobileExpanded = ref(false)
 const isAsideLgActive = ref(false)
+
+// Dynamically pick the correct menu based on the user's role
+const activeMenu = computed(() => {
+  if (authStore.isAdmin) return menuAdmin
+  if (authStore.isFreelancer) return menuFreelancer
+  if (authStore.isClient) return menuClient
+  return []
+})
 
 router.beforeEach(() => {
   isAsideMobileExpanded.value = false
@@ -71,17 +77,13 @@ const menuClick = (event, item) => {
       <AsideMenu
         :is-aside-mobile-expanded="isAsideMobileExpanded"
         :is-aside-lg-active="isAsideLgActive"
-        :menu="menuAsideMain"
+        :menu="activeMenu"
         :menu-bottom="menuAsideBottom"
         @menu-click="menuClick"
         @aside-lg-close-click="isAsideLgActive = false"
       />
       <slot />
-      <FooterBar>
-        <div class="flex items-center justify-center lg:justify-start">
-          <PremiumVersionBadge />
-        </div>
-      </FooterBar>
+      <FooterBar />
     </div>
   </div>
 </template>
