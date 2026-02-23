@@ -3,32 +3,28 @@ import api from '../plugins/axios';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
-    user: JSON.parse(localStorage.getItem('admin_user')) || null,
-    token: localStorage.getItem('admin_token') || null,
+    user: JSON.parse(localStorage.getItem('user')) || null,
+    token: localStorage.getItem('token') || null,
   }),
 
-  getters: { // just can take the vaallue from the state
+  getters: {
     isAuthenticated: (state) => !!state.token,
     role: (state) => state.user?.role || null,
     isAdmin: (state) => state.user?.role === 'admin',
+    isFreelancer: (state) => state.user?.role === 'freelancer',
+    isClient: (state) => state.user?.role === 'client',
   },
 
-  actions: { // action can modifie the value inside the state
+  actions: {
     async login(credentials) {
       try {
-        // Backend expects email and password
         const response = await api.post('/login', credentials);
-
-        // Check if the user is actually an admin before proceding
-        if (response.data.user.role !== 'admin') {
-          throw new Error('Access denied. Admin privileges required.');
-        }
 
         this.token = response.data.token;
         this.user = response.data.user;
 
-        localStorage.setItem('admin_token', this.token);
-        localStorage.setItem('admin_user', JSON.stringify(this.user));
+        localStorage.setItem('token', this.token);
+        localStorage.setItem('user', JSON.stringify(this.user));
 
         return true;
       } catch (error) {
@@ -42,6 +38,9 @@ export const useAuthStore = defineStore('auth', {
     logout() {
       this.token = null;
       this.user = null;
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      // Also clear old admin keys if present
       localStorage.removeItem('admin_token');
       localStorage.removeItem('admin_user');
     },
@@ -49,12 +48,8 @@ export const useAuthStore = defineStore('auth', {
     async fetchUser() {
       try {
         const response = await api.get('/user');
-        if (response.data.role !== 'admin') {
-          this.logout();
-          return;
-        }
         this.user = response.data;
-        localStorage.setItem('admin_user', JSON.stringify(response.data));
+        localStorage.setItem('user', JSON.stringify(response.data));
       } catch (error) {
         this.logout();
         throw error;
@@ -65,7 +60,7 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await api.put('/profile', data);
         this.user = response.data.user;
-        localStorage.setItem('admin_user', JSON.stringify(this.user));
+        localStorage.setItem('user', JSON.stringify(this.user));
         return response.data;
       } catch (error) {
         throw error.response?.data?.message || 'Failed to update profile';
