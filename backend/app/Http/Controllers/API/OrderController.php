@@ -24,15 +24,27 @@ class OrderController extends Controller
         // Authorize using policy
         $this->authorize('create', Order::class);
 
-        //check if we have that service or not
+        // Check if the service is available
         $service = Service::findOrFail($request->service_id);
-        if(!$service->is_active){
+        if (!$service->is_active) {
             return response()->json([
                 'message' => 'Cannot order inactive service.'
             ], 400);
         }
 
-        DB::beginTransaction();  // Everything from now on must succeed together, or fail together
+        // Check for existing active order for this service from this client
+        $existingOrder = Order::where('client_id', $user->id)
+            ->where('service_id', $request->service_id)
+            ->whereIn('status', ['pending', 'in_progress'])
+            ->first();
+
+        if ($existingOrder) {
+            return response()->json([
+                'message' => 'You already have an active order for this service.'
+            ], 422);
+        }
+
+        DB::beginTransaction();// Everything from now on must succeed together, or nothing will be saved
 
         try{
             $order = Order::create([
