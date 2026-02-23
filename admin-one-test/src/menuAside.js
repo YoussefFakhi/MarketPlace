@@ -1,22 +1,19 @@
 import {
   mdiAccountCircle,
   mdiMonitor,
-  mdiGithub,
-  mdiLock,
-  mdiAlertCircle,
-  mdiSquareEditOutline,
-  mdiTable,
-  mdiViewList,
-  mdiTelevisionGuide,
-  mdiResponsive,
-  mdiPalette,
   mdiLogout,
   mdiFormatListBulletedType,
   mdiCartOutline,
   mdiAccountGroup,
+  mdiViewList,
+  mdiMagnify,
+  mdiClipboardListOutline,
+  mdiChartBar,
+  mdiPlus,
 } from '@mdi/js'
 
-export const menuAsideMain = [
+//ADMIN SIDEBAR 
+export const menuAdmin = [
   {
     to: '/dashboard',
     icon: mdiMonitor,
@@ -49,6 +46,55 @@ export const menuAsideMain = [
   },
 ]
 
+// FREELANCER SIDEBAR 
+export const menuFreelancer = [
+  {
+    to: '/freelancer/dashboard',
+    icon: mdiChartBar,
+    label: 'Dashboard',
+  },
+  {
+    to: '/freelancer/services',
+    icon: mdiViewList,
+    label: 'My Services',
+  },
+  {
+    to: '/freelancer/orders',
+    icon: mdiClipboardListOutline,
+    label: 'My Orders',
+  },
+  {
+    to: '/profile',
+    label: 'Profile',
+    icon: mdiAccountCircle,
+  },
+]
+
+// CLIENT SIDEBAR 
+export const menuClient = [
+  {
+    to: '/client/dashboard',
+    icon: mdiMonitor,
+    label: 'Dashboard',
+  },
+  {
+    to: '/client/browse',
+    icon: mdiMagnify,
+    label: 'Browse Services',
+  },
+  {
+    to: '/client/orders',
+    icon: mdiCartOutline,
+    label: 'My Orders',
+  },
+  {
+    to: '/profile',
+    label: 'Profile',
+    icon: mdiAccountCircle,
+  },
+]
+
+// BOTTOM MENU (shared by all roles)
 export const menuAsideBottom = [
   {
     label: 'Logout',
@@ -57,3 +103,6 @@ export const menuAsideBottom = [
     isLogout: true,
   },
 ]
+
+// Legacy export to not break old imports
+export const menuAsideMain = menuAdmin
